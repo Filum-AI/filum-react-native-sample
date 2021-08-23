@@ -1,113 +1,181 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
-
 import React from 'react';
 import {
-  SafeAreaView,
   StyleSheet,
-  ScrollView,
+  Button,
   View,
+  SafeAreaView,
   Text,
-  StatusBar,
+  Alert,
+  TextInput,
 } from 'react-native';
+import {filumAnalytics} from './analytics';
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const Separator = () => <View style={styles.separator} />;
 
-const App: () => React$Node = () => {
+const App = () => {
+  const [text, onChangeText] = React.useState('Default Username');
+  const [trackEventName, onChangeEventName] = React.useState(
+    'Default Event Tracked',
+  );
   return (
-    <>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
-            </View>
-          )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.js</Text> to change this
-                screen and then come back to see your edits.
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </>
+    <SafeAreaView style={styles.container}>
+      <View>
+        <Text style={styles.title}>Filum React-Native Example</Text>
+        <TextInput
+          style={styles.input}
+          onChangeText={onChangeText}
+          value={text}
+        />
+        <Button
+          title="Sign In"
+          onPress={() => {
+            filumAnalytics.identify('Testing React-Native User', {
+              username: text,
+              name: 'Harry Potter',
+              weight: 35.5,
+              email: 'the_boy_who_lived@gmail.com',
+              phone: '+123 456 6789',
+            });
+            filumAnalytics.track('User Signed In', {
+              name: text,
+            });
+            // DEV ONLY: Flush rightaway so that you will see the events in the debugger at once, comment it in PROD
+            filumAnalytics.flush();
+          }}
+        />
+      </View>
+      <Separator />
+      <View>
+        <TextInput
+          style={styles.input}
+          onChangeText={onChangeEventName}
+          value={trackEventName}
+        />
+        <Button
+          title="Send 5 Track Events"
+          onPress={() => {
+            for (let i = 0; i < 5; i++) {
+              filumAnalytics.track(trackEventName, {
+                name: 'Harry Potter',
+                address: 'London, England',
+                age: i + 11,
+                weight: 35.5,
+                true: true,
+                false: false,
+                null_key: null,
+                object: {
+                  a: 1,
+                  b: 'abadsfasf',
+                  boolean: false,
+                  true: true,
+                  float: 33.3,
+                  null_sub: null,
+                },
+                list: [
+                  {
+                    a: 1,
+                    b: 'abadsfasf',
+                    boolean: false,
+                    true: true,
+                    float: 33.3,
+                    null_sub: null,
+                  },
+                  {
+                    a: 1,
+                    b: 'abadsfasf',
+                    boolean: false,
+                    true: true,
+                    float: 33.3,
+                    null_sub: null,
+                  },
+                ],
+                empty_dict: {},
+                empty_list: [],
+              });
+            }
+            // DEV ONLY: Flush rightaway so that you will see the events in the debugger at once, comment it in PROD
+            filumAnalytics.flush();
+          }}
+        />
+      </View>
+      <Separator />
+      <View>
+        <Text style={styles.paragraph}>
+          Sign Out will clean the stored Anonymous ID and User ID in the
+          device's storage.
+        </Text>
+        <Text style={styles.paragraph}>
+          Empty user_id in Track is expected until you Sign In again.
+        </Text>
+        <Button
+          title="Sign Out"
+          color="#f194ff"
+          onPress={() => {
+            Alert.alert('You have signed out!');
+            filumAnalytics.track('User Signed Out', {
+              name: text,
+            });
+            filumAnalytics.reset();
+            // DEV ONLY: Flush rightaway so that you will see the events in the debugger at once, comment it in PROD
+            filumAnalytics.flush();
+          }}
+        />
+      </View>
+      <Separator />
+      <View>
+        <Text style={styles.title}>Example Buttons</Text>
+        <View style={styles.fixToText}>
+          <Button
+            title="Left button"
+            onPress={() => {
+              filumAnalytics.track('Left Button Clicked', {
+                name: 'Left Button',
+                type: 'Button',
+              });
+              // DEV ONLY: Flush rightaway so that you will see the events in the debugger at once, comment it in PROD
+              filumAnalytics.flush();
+            }}
+          />
+          <Button
+            title="Right button"
+            onPress={() => {
+              filumAnalytics.track('Right Button Clicked', {
+                name: 'Right Button',
+                type: 'Button',
+              });
+              // DEV ONLY: Flush rightaway so that you will see the events in the debugger at once, comment it in PROD
+              filumAnalytics.flush();
+            }}
+          />
+        </View>
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollView: {
-    backgroundColor: Colors.lighter,
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    marginHorizontal: 16,
   },
-  engine: {
-    position: 'absolute',
-    right: 0,
-  },
-  body: {
-    backgroundColor: Colors.white,
-  },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
+  title: {
+    textAlign: 'center',
+    marginVertical: 8,
     fontSize: 24,
-    fontWeight: '600',
-    color: Colors.black,
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
+  paragraph: {
+    textAlign: 'left',
+    marginVertical: 8,
   },
-  highlight: {
-    fontWeight: '700',
+  fixToText: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
+  separator: {
+    marginVertical: 8,
+    borderBottomColor: '#737373',
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
 });
 
